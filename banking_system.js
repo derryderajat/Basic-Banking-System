@@ -1,34 +1,32 @@
 // BankAccount class represents a simple bank account with balance operations.
 class BankAccount {
   // Constructor to initialize the account with an initial balance (default is 0).
+  #saldo;
   constructor(initialBalance = 0) {
-    this.saldo = initialBalance;
+    this.#saldo = initialBalance;
   }
 
   // Method to add balance to the account.
+  // Method to add balance to the account.
   async deposit(amt) {
     try {
-      // check if user pressed "Cancel"
+      // Check if user pressed "Cancel"
       if (amt == null) {
         console.log("Canceled");
         throw new Error("Process has been canceled");
+      } else if (!isNaN(Number(amt)) && Number(amt) > 0) {
+        console.log(`Adding balance of: ${amt}...`);
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            this.#saldo += Number(amt);
+            document.getElementById("saldo").innerHTML = this.#saldo;
+            alert(`Deposit success : ${this.#saldo}`);
+            resolve(); // Resolve the promise after 2 seconds
+          }, 2000);
+        });
       }
-      console.log(`Adding balance of: ${amt}...`);
 
-      // simulate asynchronous
-      const result = await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          amt = Number(amt);
-          if (!isNaN(amt) && amt > 0) {
-            this.saldo += amt;
-            document.getElementById("saldo").innerHTML = this.saldo;
-            resolve("success");
-          } else {
-            reject(new Error("Invalid input"));
-          }
-        }, 2000);
-      });
-      console.log(`deposit operation: ${result}`);
+      console.log(`deposit operation: ${amt}`);
     } catch (error) {
       console.error(`An error occurred: ${error.message}`);
       throw error;
@@ -42,32 +40,30 @@ class BankAccount {
       if (amt == null) {
         console.log("No operation was performed");
         throw new Error("No operation was performed");
-      }
-
-      console.log(`Withdrawing balance of: ${amt}...`);
-
-      // Simulate an asynchronous process with a setTimeout.
-      const result = await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (!isNaN(amt) && amt > 0 && amt <= this.saldo) {
-            this.saldo -= amt;
-            document.getElementById("saldo").innerHTML = this.saldo;
+      } else if (
+        !isNaN(Number(amt)) &&
+        Number(amt) > 0 &&
+        Number(amt) <= this.#saldo
+      ) {
+        // Simulate an asynchronous process with a setTimeout.
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            this.#saldo -= Number(amt);
+            document.getElementById("saldo").innerHTML = this.#saldo;
             console.log(
-              `Withdrawn balance of: ${amt}, current balance: ${this.saldo}`
+              `Withdrawn balance of: ${amt}, current balance: ${this.#saldo}`
             );
-            alert(`Your current balance is ${this.saldo}`);
-            resolve("Success");
-          } else if (amt <= 0) {
-            console.log("Invalid input. Please try again.");
-            reject(new Error("Invalid input"));
-          } else {
-            alert("Sorry, your balance is not sufficient");
-            reject(new Error("Insufficient balance"));
-          }
-        }, 2000); // Simulate a 2-second delay
-      });
-
-      console.log(`Withdrawal operation: ${result}`);
+            alert(`Withdraw success: ${amt}\nYour balance is ${this.#saldo}`);
+            resolve();
+          }, 2000); // Simulate a 2-second delay
+        });
+      } else if (Number(amt) <= 0) {
+        console.log("Invalid input. Please try again.");
+        throw new Error("Invalid input");
+      } else {
+        alert("Sorry, your balance is not sufficient");
+        throw new Error("Insufficient balance");
+      }
     } catch (error) {
       console.error(`An error occurred: ${error.message}`);
       throw error; // Re-throw the error to be handled by the caller
@@ -96,7 +92,7 @@ class BankAccount {
 
   // Method to get the current balance.
   getSaldo() {
-    return this.saldo;
+    return this.#saldo;
   }
 }
 // make an object called bankAccount
