@@ -20,3 +20,6 @@
 - [x] Menggunakan modular class OOP (40 points)
 - [x] Mengurai proses berpikir dengan menggunakan flowchart (30 points)
 - [x] Menggunakan GitHub untuk mengelola repository (30 points)
+
+## Flowchart
+ ![Tux, the Linux mascot](/flowchart.png)
