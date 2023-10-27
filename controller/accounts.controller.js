@@ -101,19 +101,20 @@ const fetchAccountsById = async (req, res) => {
           select: {
             name: true,
             email: true,
-            profiles: true,
+            profile: true,
           },
         },
       },
     });
     if (account) {
-      res.json(ResponseTemplate(account, "ok", null, 200));
+      res.status(200).json(ResponseTemplate(account, "ok", null, 200));
       return;
     }
-    res.json(ResponseTemplate(null, "Not Found", null, 404));
+    res.status(404).json(ResponseTemplate(null, "Not Found", null, 404));
     return;
   } catch (error) {
-    res.json(ResponseTemplate(null, "Internal Server Error", null, 500));
+    console.log(error.message)
+    res.status(500).json(ResponseTemplate(null, "Internal Server Error", null, 500));
     return;
   }
 };
