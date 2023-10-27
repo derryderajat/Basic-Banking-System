@@ -24,7 +24,7 @@ const fetchUsers = async (req, res) => {
       take: itemsPerPage,
     });
     if (users.length === 0) {
-      res.json(ResponseTemplate(null, "Not Found", null, 404));
+      res.status(404).json(ResponseTemplate(null, "Not Found", null, 404));
       return;
     } else {
       const totalPages = Math.ceil(totalRecords / itemsPerPage);
@@ -39,11 +39,14 @@ const fetchUsers = async (req, res) => {
         nextPage,
         prevPage
       );
-      res.json(ResponseTemplate(response, "ok", null, 200));
+      res.status(200).json(ResponseTemplate(response, "ok", null, 200));
       return;
     }
   } catch (error) {
-    res.json(ResponseTemplate(null, "Internal Server Error", error, 500));
+    console.log(error);
+    res
+      .status(500)
+      .json(ResponseTemplate(null, "Internal Server Error", error, 500));
   }
 };
 
