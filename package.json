@@ -1,0 +1,32 @@
+{
+  "name": "basic-banking-system",
+  "version": "1.0.0",
+  "description": "- Programming Algorithm\r - Melakukan error handling\r - Menerapkan Asynchronous process\r - Menerapkan OOP\r - Menggunakan Git",
+  "main": "index.js",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "joi": "^17.11.0",
+    "@prisma/client": "^5.4.2",
+    "morgan": "^1.10.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon -L index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/derryderajat/Basic-Banking-System.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/derryderajat/Basic-Banking-System/issues"
+  },
+  "homepage": "https://github.com/derryderajat/Basic-Banking-System#readme",
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "prisma": "^5.4.2"
+  }
+}

@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+// SCHEMAS
+enum IdentityType {
+  SIM
+  KTP
+  NPWP
+}
+model Users {
+  id         Int       @id @default(autoincrement())
+  name       String
+  email      String    @unique
+  password   String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  deleted_at DateTime?
+
+  // Relation
+  bank_accounts BankAccounts[]
+  profile    Profiles?
+}
+// Profile model
+
+model Profiles {
+  id                   Int      @id @default(autoincrement())
+  user_id              Int @unique
+  identity_type        IdentityType
+  identity_account_number String   @unique
+  address              String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  deleted_at DateTime?
+  user Users @relation(fields: [user_id], references: [id])
+}
+
+model BankAccounts {
+  id                  Int       @id @default(autoincrement())
+  bank_name           String
+  bank_account_number String    @unique
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  deleted_at DateTime?
+  user_id             Int
+  user                Users     @relation(fields: [user_id], references: [id])
+  transactions_source Transactions[] @relation("sourceAccount")
+  transactions_destination Transactions[] @relation("destinationAccount")
+}
+
+model Transactions {
+  id                   Int                   @id @default(autoincrement())
+  source_account_id    String?
+  destination_account_id String? 
+  amount               Int
+  type                EnumTransactionType
+  created_at DateTime  @default(now())
+  sourceAccount BankAccounts? @relation("sourceAccount", fields: [source_account_id], references: [bank_account_number])
+  destinationAccount BankAccounts? @relation("destinationAccount", fields: [destination_account_id], references: [bank_account_number]) 
+}
+
+
+enum EnumTransactionType {
+  Withdraw
+  Deposit
+  Transfer
+  Check
+  BillPayment
+  Loan
+  CurrencyExchange
+}
