@@ -9,65 +9,70 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-
-// Define the User model
+// SCHEMAS
+enum IdentityType {
+  SIM
+  KTP
+  NPWP
+}
 model Users {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   name       String
-  email      String   @unique
+  email      String    @unique
   password   String
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now())
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
   deleted_at DateTime?
 
-  // Define the relationship to Profile and BankAccount
-  profiles   Profiles?
-  bankAccounts BankAccounts[]
+  // Relation
+  bank_accounts BankAccounts[]
+  profile    Profiles?
 }
+// Profile model
 
-// Define the Profile model
 model Profiles {
   id                   Int      @id @default(autoincrement())
-  user_id              Int      @unique
-  identity_type        String
-  identity_account_number String @unique
+  user_id              Int @unique
+  identity_type        IdentityType
+  identity_account_number String   @unique
   address              String
-  created_at           DateTime @default(now())
-  updated_at           DateTime @default(now())
-  deleted_at           DateTime?
-
-  // Define the relationship to User
-  user                 Users @relation(fields: [user_id], references: [id])
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  deleted_at DateTime?
+  user Users @relation(fields: [user_id], references: [id])
 }
 
-// Define the Transaction model
-model Transactions {
-  id                   Int      @id @default(autoincrement())
-  source_account_id    String
-  destination_account_id String
-  amount               Int
-  created_at           DateTime @default(now())
-
-  // Define the relationship to BankAccount (source_account and destination_account)
-  sourceAccount        BankAccounts? @relation("source_account", fields: [source_account_id], references: [bank_account_number])
-  destinationAccount   BankAccounts? @relation("destination_account", fields: [destination_account_id], references: [bank_account_number])
-}
-
-// Define the BankAccount model
 model BankAccounts {
-  id                  Int      @id @default(autoincrement())
+  id                  Int       @id @default(autoincrement())
+  bank_name           String
+  bank_account_number String    @unique
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  deleted_at DateTime?
   user_id             Int
-  bank_name           String?
-  bank_account_number String   @unique
-  created_at          DateTime @default(now())
-  updated_at          DateTime @default(now())
-  deleted_at          DateTime?
+  user                Users     @relation(fields: [user_id], references: [id])
+  transactions_source Transactions[] @relation("sourceAccount")
+  transactions_destination Transactions[] @relation("destinationAccount")
+}
 
-  // Define the relationship to User
-  user                Users @relation(fields: [user_id], references: [id])
+model Transactions {
+  id                   Int                   @id @default(autoincrement())
+  source_account_id    String?
+  destination_account_id String? 
+  amount               Int
+  type                EnumTransactionType
+  created_at DateTime  @default(now())
+  sourceAccount BankAccounts? @relation("sourceAccount", fields: [source_account_id], references: [bank_account_number])
+  destinationAccount BankAccounts? @relation("destinationAccount", fields: [destination_account_id], references: [bank_account_number]) 
+}
 
-  // Define the relationship to Transaction (source_account and destination_account)
-  source_account      Transactions[] @relation("source_account")
-  destination_account Transactions[] @relation("destination_account")
+
+enum EnumTransactionType {
+  Withdraw
+  Deposit
+  Transfer
+  Check
+  BillPayment
+  Loan
+  CurrencyExchange
 }
