@@ -12,7 +12,7 @@ const validateUserPost = (req, res, next) => {
     email: Joi.string().email().required(),
     password: Joi.string().required(),
     identity_type: Joi.string().max(10).required(),
-    identity_account_number: Joi.string().max(20).required(),
+    identity_account_number: Joi.string().alphanum().max(20).required(),
     address: Joi.string().required(),
   });
   const { error } = schema.validate(req.body);
