@@ -2,6 +2,7 @@ const { ResponseTemplate } = require("../helper/template.helper");
 const { PrismaClient, Prisma } = require("@prisma/client");
 const prisma = new PrismaClient();
 const Joi = require("joi");
+const getBalance = require("../helper/getBalance.helper");
 // function PrintSuccess(req, res, next) {
 const notFound = (req, res, next) => {
   res.status(404).json(ResponseTemplate(null, "Not Found", null, 404));
@@ -124,9 +125,51 @@ const validateBankAccount = async (req, res, next) => {
 
   next(); // Continue to the next middleware
 };
+const isBalanceSufficient = async (req, res, next) => {
+  const source_account_id = req.params.bank_account_number;
+  const { amount } = req.body;
+  const bank_account_number = req.params.bank_account_number;
+  const transactions = await prisma.transactions.findMany({
+    where: {
+      OR: [
+        { source_account_id: bank_account_number },
+        { destination_account_id: bank_account_number },
+      ],
+    },
+  });
+
+  // Calculate the balance
+  let balance_inquiry = 0;
+  for (const transaction of transactions) {
+    if (transaction.type === "Deposit") {
+      balance_inquiry += transaction.amount;
+    } else if (transaction.type === "Withdraw") {
+      balance_inquiry -= transaction.amount;
+    } else if (
+      transaction.type === "Transfer" &&
+      transaction.source_account_id === bank_account_number
+    ) {
+      balance_inquiry -= transaction.amount;
+    } else if (
+      transaction.type === "Transfer" &&
+      transaction.destination_account_id === bank_account_number
+    ) {
+      balance_inquiry += transaction.amount;
+    }
+  }
+  if (amount > balance_inquiry) {
+    return res
+      .status(400)
+      .json(
+        ResponseTemplate(null, "Bad Request", "Balance is not enough", 400)
+      );
+  }
+  next();
+};
 module.exports = {
   validateUserPost,
   notFound,
   isAmountPositive,
   validateBankAccount,
+  isBalanceSufficient,
 };
