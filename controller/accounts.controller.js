@@ -4,6 +4,7 @@ const {
   ResponseTemplate,
   PaginationTemplate,
 } = require("../helper/template.helper");
+const getBalance = require("../helper/getBalance.helper");
 
 const prisma = new PrismaClient();
 // POST /api/v1/accounts: menambahkan akun baru
@@ -113,13 +114,112 @@ const fetchAccountsById = async (req, res) => {
     res.status(404).json(ResponseTemplate(null, "Not Found", null, 404));
     return;
   } catch (error) {
-    console.log(error.message)
-    res.status(500).json(ResponseTemplate(null, "Internal Server Error", null, 500));
+    console.log(error.message);
+    res
+      .status(500)
+      .json(ResponseTemplate(null, "Internal Server Error", null, 500));
     return;
   }
 };
+
+const withdraw = async (req, res) => {
+  const source_account_id = req.params.bank_account_number;
+  const { amount } = req.body;
+  const payload = {};
+
+  payload.type = "Withdraw";
+  payload.amount = amount;
+  payload.source_account_id = source_account_id;
+  payload.destination_account_id = null;
+
+  try {
+    const transaction = await prisma.transactions.create({
+      data: payload,
+    });
+    const response = ResponseTemplate(
+      transaction,
+      "Transaction Created",
+      null,
+      201
+    );
+    return res.status(201).json(response);
+  } catch (error) {
+    console.error("Error Controller Transaction", error);
+    res
+      .status(500)
+      .json(ResponseTemplate(null, "Internal Server Error", error, 500));
+    return;
+  }
+};
+const deposit = async (req, res) => {
+  const destination_account_id = req.params.bank_account_number;
+  console.log(req.params);
+  const { amount } = req.body;
+  const payload = {};
+  payload.type = "Deposit";
+  payload.amount = amount;
+  payload.source_account_id = null;
+  payload.destination_account_id = destination_account_id;
+
+  try {
+    const transaction = await prisma.transactions.create({
+      data: payload,
+    });
+    const response = ResponseTemplate(
+      transaction,
+      "Transaction Created",
+      null,
+      201
+    );
+    return res.status(201).json(response);
+  } catch (error) {
+    console.error("Error Controller Transaction", error);
+    res
+      .status(500)
+      .json(ResponseTemplate(null, "Internal Server Error", error, 500));
+    return;
+  }
+};
+
+const balanceInquiry = async (req, res) => {
+  // Retrieve transactions for the specified bank account
+  const bank_account_number = req.params.bank_account_number;
+  const transactions = await prisma.transactions.findMany({
+    where: {
+      OR: [
+        { source_account_id: bank_account_number },
+        { destination_account_id: bank_account_number },
+      ],
+    },
+  });
+
+  // Calculate the balance
+  let saldo = 0;
+  for (const transaction of transactions) {
+    if (transaction.type === "Deposit") {
+      saldo += transaction.amount;
+    } else if (transaction.type === "Withdraw") {
+      saldo -= transaction.amount;
+    } else if (
+      transaction.type === "Transfer" &&
+      transaction.source_account_id === bank_account_number
+    ) {
+      saldo -= transaction.amount;
+    } else if (
+      transaction.type === "Transfer" &&
+      transaction.destination_account_id === bank_account_number
+    ) {
+      saldo += transaction.amount;
+    }
+  }
+
+  return res.json(ResponseTemplate({ bank_inquiry: saldo }, "ok", null, 200));
+};
 module.exports = {
+  deposit,
+  withdraw,
   fetchAccounts,
   fetchAccountsById,
   insertOneAccount,
+  balanceInquiry,
 };
