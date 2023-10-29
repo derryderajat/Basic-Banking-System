@@ -19,6 +19,11 @@ const fetchAccounts = async (req, res) => {
   try {
     const totalRecords = await prisma.bankAccounts.count();
     let accounts = await prisma.bankAccounts.findMany({
+      select: {
+        id: true,
+        bank_name: true,
+        bank_account_number: true,
+      },
       where: {
         deleted_at: null,
       },
@@ -103,12 +108,21 @@ const fetchAccountsById = async (req, res) => {
         id: accountId,
         deleted_at: null,
       },
-      include: {
+      select: {
+        id: true,
+        bank_name: true,
+        bank_account_number: true,
         user: {
           select: {
             name: true,
             email: true,
-            profile: true,
+            profile: {
+              select: {
+                identity_account_number: true,
+                identity_type: true,
+                address: true,
+              },
+            },
           },
         },
       },
