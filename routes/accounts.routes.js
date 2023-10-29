@@ -11,6 +11,7 @@ const {
 const {
   isAmountPositive,
   isBalanceSufficient,
+  validateBankAccount,
 } = require("../middleware/middleware");
 
 router.get("/accounts", fetchAccounts);
@@ -28,5 +29,9 @@ router.post(
   deposit
 );
 
-router.get("/accounts/:bank_account_number/balance_inquiry", balanceInquiry);
+router.get(
+  "/accounts/:bank_account_number/balance_inquiry",
+  [validateBankAccount],
+  balanceInquiry
+);
 module.exports = router;

@@ -19,7 +19,7 @@ const fetchTransactions = async (req, res) => {
       take: itemsPerPage,
     });
     if (transaction.length === 0) {
-      res.status(404).json(ResponseTemplate(null, "Not Found", null, 404));
+      res.status(404).json(ResponseTemplate(null, "Not Found", true, 404));
       return;
     } else {
       const totalPages = Math.ceil(totalRecords / itemsPerPage);
@@ -34,14 +34,14 @@ const fetchTransactions = async (req, res) => {
         nextPage,
         prevPage
       );
-      res.status(200).json(ResponseTemplate(response, "ok", null, 200));
+      res.status(200).json(ResponseTemplate(response, "ok", false, 200));
       return;
     }
   } catch (error) {
     console.log(error);
     res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", error, 500));
+      .json(ResponseTemplate(null, "Internal Server Error", true, 500));
     return;
   }
 };

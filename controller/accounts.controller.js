@@ -26,7 +26,7 @@ const fetchAccounts = async (req, res) => {
       take: itemsPerPage,
     });
     if (accounts.length === 0) {
-      res.json(ResponseTemplate(null, "Not Found", null, 404));
+      res.status(404).json(ResponseTemplate(null, "Not Found", true, 404));
       return;
     } else {
       const totalPages = Math.ceil(totalRecords / itemsPerPage);
@@ -41,12 +41,14 @@ const fetchAccounts = async (req, res) => {
         nextPage,
         prevPage
       );
-      res.json(ResponseTemplate(response, "ok", null, 200));
+      res.status(200).json(ResponseTemplate(response, "ok", false, 200));
       return;
     }
   } catch (error) {
     console.log(error);
-    res.json(ResponseTemplate(null, "Internal Server Error", error, 500));
+    res
+      .status(500)
+      .json(ResponseTemplate(null, "Internal Server Error", true, 500));
     return;
   }
 };
@@ -62,7 +64,12 @@ const insertOneAccount = async (req, res) => {
       },
     });
 
-    const response = ResponseTemplate(newBankAccount, "Created", null, 201);
+    const response = ResponseTemplate(
+      newBankAccount,
+      "Created Account Successfully",
+      false,
+      201
+    );
     res.status(201).json(response);
     return;
   } catch (error) {
@@ -73,8 +80,8 @@ const insertOneAccount = async (req, res) => {
     ) {
       const responseError = ResponseTemplate(
         null,
-        "Bad request",
-        "Duplicate data",
+        "Bad request - Data Already Exists",
+        true,
         400
       );
       res.status(400).json(responseError);
@@ -107,10 +114,10 @@ const fetchAccountsById = async (req, res) => {
       },
     });
     if (account) {
-      res.status(200).json(ResponseTemplate(account, "ok", null, 200));
+      res.status(200).json(ResponseTemplate(account, "ok", false, 200));
       return;
     }
-    res.status(404).json(ResponseTemplate(null, "Not Found", null, 404));
+    res.status(404).json(ResponseTemplate(null, "Not Found", true, 404));
     return;
   } catch (error) {
     console.log(error.message);
@@ -138,7 +145,7 @@ const withdraw = async (req, res) => {
     const response = ResponseTemplate(
       transaction,
       "Transaction Created",
-      null,
+      false,
       201
     );
     return res.status(201).json(response);
@@ -167,7 +174,7 @@ const deposit = async (req, res) => {
     const response = ResponseTemplate(
       transaction,
       "Transaction Created",
-      null,
+      false,
       201
     );
     return res.status(201).json(response);
@@ -183,6 +190,7 @@ const deposit = async (req, res) => {
 const balanceInquiry = async (req, res) => {
   // Retrieve transactions for the specified bank account
   const bank_account_number = req.params.bank_account_number;
+
   const transactions = await prisma.transactions.findMany({
     where: {
       OR: [
@@ -191,7 +199,6 @@ const balanceInquiry = async (req, res) => {
       ],
     },
   });
-
   // Calculate the balance
   let saldo = 0;
   for (const transaction of transactions) {
@@ -212,7 +219,9 @@ const balanceInquiry = async (req, res) => {
     }
   }
 
-  return res.json(ResponseTemplate({ bank_inquiry: saldo }, "ok", null, 200));
+  return res
+    .status(200)
+    .json(ResponseTemplate({ bank_inquiry: saldo }, "ok", false, 200));
 };
 module.exports = {
   deposit,

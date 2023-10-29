@@ -43,85 +43,19 @@ const isAmountPositive = (req, res, next) => {
   next();
 };
 const validateBankAccount = async (req, res, next) => {
-  const { source_account_id, destination_account_id, type } = req.body;
-  let existingSourceAccount;
-  let existingDestinationAccount;
-  if (type === "Withdraw") {
-    existingSourceAccount = await prisma.bankAccounts.findUnique({
-      where: {
-        bank_account_number: source_account_id,
-        deleted_at: null,
-      },
-    });
-
-    if (!existingSourceAccount) {
-      return res
-        .status(400)
-        .json(
-          ResponseTemplate(
-            null,
-            "Bad Request",
-            "Source Account Can't Be Empty",
-            400
-          )
-        );
-    }
-  } else if (type === "Deposit") {
-    existingDestinationAccount = await prisma.bankAccounts.findUnique({
-      where: {
-        bank_account_number: destination_account_id,
-        deleted_at: null,
-      },
-    });
-    if (!existingDestinationAccount) {
-      return res
-        .status(400)
-        .json(
-          ResponseTemplate(
-            null,
-            "Bad Request",
-            "Destination Account Can't Be Empty",
-            400
-          )
-        );
-    }
-  } else if (type === "Transfer") {
-    existingDestinationAccount = await prisma.bankAccounts.findUnique({
-      where: {
-        bank_account_number: destination_account_id,
-        deleted_at: null,
-      },
-    });
-    existingSourceAccount = await prisma.bankAccounts.findUnique({
-      where: {
-        bank_account_number: source_account_id,
-        deleted_at: null,
-      },
-    });
-    if (!existingSourceAccount) {
-      return res
-        .status(400)
-        .json(
-          ResponseTemplate(
-            null,
-            "Bad Request",
-            "Source Account Can't Be Empty",
-            400
-          )
-        );
-    }
-    if (!existingDestinationAccount) {
-      return res
-        .status(400)
-        .json(
-          ResponseTemplate(
-            null,
-            "Bad Request",
-            "Destination Account Can't Be Empty",
-            400
-          )
-        );
-    }
+  const bank_account_number = req.params.bank_account_number;
+  const is_bank_account_exists = await prisma.bankAccounts.findUnique({
+    where: {
+      bank_account_number: bank_account_number,
+    },
+  });
+  if (!is_bank_account_exists) {
+    res
+      .status(404)
+      .json(
+        ResponseTemplate(null, "Bank Account Number Is Not Found", true, 404)
+      );
+    return;
   }
 
   next(); // Continue to the next middleware
