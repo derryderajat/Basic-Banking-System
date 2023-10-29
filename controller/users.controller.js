@@ -59,12 +59,22 @@ const fetchUserById = async (req, res) => {
   const userId = parseInt(req.params.id);
   try {
     const user = await prisma.users.findUnique({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        profile: {
+          select: {
+            user_id: true,
+            address: true,
+            identity_type: true,
+            identity_account_number: true,
+          },
+        },
+      },
       where: {
         id: userId,
         deleted_at: null,
-      },
-      include: {
-        profile: true,
       },
     });
 
@@ -142,8 +152,18 @@ const updateUserById = async (req, res) => {
             },
           },
         },
-        include: {
-          profile: true,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profile: {
+            select: {
+              user_id: true,
+              address: true,
+              identity_type: true,
+              identity_account_number: true,
+            },
+          },
         },
       });
 
