@@ -4,7 +4,6 @@ const {
   ResponseTemplate,
   PaginationTemplate,
 } = require("../helper/template.helper");
-const getBalance = require("../helper/getBalance.helper");
 
 const prisma = new PrismaClient();
 // POST /api/v1/accounts: menambahkan akun baru
