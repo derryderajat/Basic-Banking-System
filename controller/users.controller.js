@@ -42,14 +42,19 @@ const fetchUsers = async (req, res) => {
         nextPage,
         prevPage,
       };
-      res.status(200).json(ResponseTemplate(response, "success", false, "ok"));
-      return;
+      return res.status(200).json(ResponseTemplate(response, "success", null, "ok"));
+      
     }
   } catch (error) {
     return res
       .status(500)
       .json(
-        ResponseTemplate(null, "Internal Server Error", error.message, false)
+        ResponseTemplate(
+          null,
+          "Something broke!",
+          error.message,
+          "Internal Server Error"
+        )
       );
   }
 };
