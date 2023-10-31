@@ -6,7 +6,9 @@ const Joi = require("joi");
 
 
 const notFound = (req, res, next) => {
-  res.status(404).json(ResponseTemplate(null, "Not Found", null, 404));
+  return res
+    .status(404)
+    .json(ResponseTemplate(null, "u-Uh you are lost?", null, "Not Found"));
 };
 const validateUserPost = (req, res, next) => {
   const schema = Joi.object({
@@ -23,7 +25,7 @@ const validateUserPost = (req, res, next) => {
       null,
       "invalid request",
       error.details[0].message,
-      400
+      "Bad Request!"
     );
     res.status(400).json(respErr);
     return;
@@ -37,7 +39,7 @@ const isAmountPositive = (req, res, next) => {
   if (amount <= 0) {
     res
       .status(400)
-      .json(ResponseTemplate(null, "Bad Request", "Invalid Amount", 400));
+      .json(ResponseTemplate(null, "Invalid Amount", null, "Bad Request!"));
     return;
   }
   next();
@@ -50,12 +52,11 @@ const validateBankAccount = async (req, res, next) => {
     },
   });
   if (!is_bank_account_exists) {
-    res
+    return res
       .status(404)
       .json(
-        ResponseTemplate(null, "Bank Account Number Is Not Found", true, 404)
+        ResponseTemplate(null, "Sorry data is not found", null, "Not Found")
       );
-    return;
   }
 
   next(); // Continue to the next middleware
@@ -96,7 +97,7 @@ const isBalanceSufficient = async (req, res, next) => {
     return res
       .status(400)
       .json(
-        ResponseTemplate(null, "Bad Request", "Balance is not enough", 400)
+        ResponseTemplate(null, "Balance is not enough", null, "Bad Request!")
       );
   }
   next();

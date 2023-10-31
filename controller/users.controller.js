@@ -1,9 +1,6 @@
 const { PrismaClient, Prisma } = require("@prisma/client");
 const Joi = require("joi");
-const {
-  ResponseTemplate,
-  PaginationTemplate,
-} = require("../helper/template.helper");
+const { ResponseTemplate } = require("../helper/template.helper");
 const prisma = new PrismaClient();
 const fetchUsers = async (req, res) => {
   const { page } = req.query;
@@ -29,28 +26,31 @@ const fetchUsers = async (req, res) => {
       take: itemsPerPage,
     });
     if (users.length === 0) {
-      res.status(404).json(ResponseTemplate(null, "Not Found", true, 404));
-      return;
+      return res
+        .status(404)
+        .json(ResponseTemplate(null, "Not Found!", null, false));
     } else {
       const totalPages = Math.ceil(totalRecords / itemsPerPage);
       const nextPage = pageNumber < totalPages ? pageNumber + 1 : null;
       const prevPage = pageNumber > 1 ? pageNumber - 1 : null;
 
-      const response = PaginationTemplate(
+      const response = {
         users,
         totalRecords,
         pageNumber,
         totalPages,
         nextPage,
-        prevPage
-      );
-      res.status(200).json(ResponseTemplate(response, "ok", false, 200));
+        prevPage,
+      };
+      res.status(200).json(ResponseTemplate(response, "success", false, "ok"));
       return;
     }
   } catch (error) {
-    res
+    return res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", true, 500));
+      .json(
+        ResponseTemplate(null, "Internal Server Error", error.message, false)
+      );
   }
 };
 
@@ -79,18 +79,28 @@ const fetchUserById = async (req, res) => {
     });
 
     if (user) {
-      return res.status(200).json(ResponseTemplate(user, "ok", false, 200));
+      return res
+        .status(200)
+        .json(ResponseTemplate(user, "success", null, "ok"));
     } else {
       return res
         .status(404)
-        .json(ResponseTemplate(null, "Not Found", true, 404));
+        .json(
+          ResponseTemplate(null, "Sorry data is not found", null, "Not Found")
+        );
     }
   } catch (error) {
     console.log(error);
-    res
+    return res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", error, 500));
-    return;
+      .json(
+        ResponseTemplate(
+          null,
+          "Something broke!",
+          error.message,
+          "Internal Server Error"
+        )
+      );
   }
 };
 const updateUserById = async (req, res) => {
@@ -128,7 +138,9 @@ const updateUserById = async (req, res) => {
     if (!existingUser) {
       return res
         .status(404)
-        .json(ResponseTemplate(null, "User not found", true, 404));
+        .json(
+          ResponseTemplate(null, "Sorry data is not found", null, "Not Found")
+        );
     }
 
     // Update user data if there's body in its req
@@ -167,19 +179,28 @@ const updateUserById = async (req, res) => {
         },
       });
 
-      res
+      return res
         .status(201)
-        .json(ResponseTemplate(updatedUser, "User updated", false, 201));
+        .json(
+          ResponseTemplate(updatedUser, "User is updated", null, "Created")
+        );
     } else {
-      res
+      return res
         .status(400)
-        .json(ResponseTemplate(null, "No data provided for update", true, 400));
+        .json(ResponseTemplate(null, "Something wrong", null, "Bad Request!"));
     }
   } catch (error) {
     console.log(error);
-    res
+    return res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", true, 500));
+      .json(
+        ResponseTemplate(
+          null,
+          "Something broke!",
+          error.message,
+          "Internal Server Error"
+        )
+      );
   }
 };
 
@@ -208,20 +229,37 @@ const insertOneUser = async (req, res) => {
         },
       },
     });
-    let respons = ResponseTemplate(newUser, "Created", false, 201);
-    res.status(201).json(respons);
+    let respons = ResponseTemplate(
+      newUser,
+      "New user is created",
+      null,
+      "created"
+    );
+    return res.status(201).json(respons);
   } catch (error) {
     console.log(error);
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      let respErr = ResponseTemplate(null, "Bad request", true, 400);
-      res.status(400).json(respErr); // Mengatur status ke 400 untuk kesalahan P2002
+      let respErr = ResponseTemplate(
+        null,
+        "Something wrong!",
+        error.message,
+        "Bad Request!"
+      );
+      return res.status(400).json(respErr); // Mengatur status ke 400 untuk kesalahan P2002
     } else {
-      res
+      return res
         .status(500)
-        .json(ResponseTemplate(null, "Internal Server Error", error, 500));
+        .json(
+          ResponseTemplate(
+            null,
+            "Something broke!",
+            error.message,
+            "Internal Server Error"
+          )
+        );
     }
   }
 };

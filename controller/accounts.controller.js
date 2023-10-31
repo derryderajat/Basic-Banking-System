@@ -31,8 +31,11 @@ const fetchAccounts = async (req, res) => {
       take: itemsPerPage,
     });
     if (accounts.length === 0) {
-      res.status(404).json(ResponseTemplate(null, "Not Found", true, 404));
-      return;
+      return res
+        .status(404)
+        .json(
+          ResponseTemplate(null, "Sorry data is not found", null, "Not Found")
+        );
     } else {
       const totalPages = Math.ceil(totalRecords / itemsPerPage);
       const nextPage = pageNumber < totalPages ? pageNumber + 1 : null;
@@ -46,15 +49,22 @@ const fetchAccounts = async (req, res) => {
         nextPage,
         prevPage
       );
-      res.status(200).json(ResponseTemplate(response, "ok", false, 200));
-      return;
+      return res
+        .status(200)
+        .json(ResponseTemplate(response, "success", null, "ok"));
     }
   } catch (error) {
     console.log(error);
-    res
+    return res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", true, 500));
-    return;
+      .json(
+        ResponseTemplate(
+          null,
+          "Something broke!",
+          error.message,
+          "Internal Server Error"
+        )
+      );
   }
 };
 const insertOneAccount = async (req, res) => {
@@ -72,8 +82,8 @@ const insertOneAccount = async (req, res) => {
     const response = ResponseTemplate(
       newBankAccount,
       "Created Account Successfully",
-      false,
-      201
+      null,
+      "Created"
     );
     res.status(201).json(response);
     return;
@@ -86,16 +96,22 @@ const insertOneAccount = async (req, res) => {
       const responseError = ResponseTemplate(
         null,
         "Bad request - Data Already Exists",
-        true,
-        400
+        error.message,
+
+        "Bad Request!"
       );
-      res.status(400).json(responseError);
-      return;
+      return res.status(400).json(responseError);
     } else {
-      res
+      return res
         .status(500)
-        .json(ResponseTemplate(null, "Internal Server Error", error, 500));
-      return;
+        .json(
+          ResponseTemplate(
+            null,
+            "Something broke!",
+            error.message,
+            "Internal Server Error"
+          )
+        );
     }
   }
 };
@@ -128,17 +144,27 @@ const fetchAccountsById = async (req, res) => {
       },
     });
     if (account) {
-      res.status(200).json(ResponseTemplate(account, "ok", false, 200));
-      return;
+      return res
+        .status(200)
+        .json(ResponseTemplate(account, "success", null, "ok"));
     }
-    res.status(404).json(ResponseTemplate(null, "Not Found", true, 404));
-    return;
+    return res
+      .status(404)
+      .json(
+        ResponseTemplate(null, "Sorry data is not found", null, "Not Found")
+      );
   } catch (error) {
     console.log(error.message);
-    res
+    return res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", null, 500));
-    return;
+      .json(
+        ResponseTemplate(
+          null,
+          "Something broke!",
+          error.message,
+          "Internal Server Error"
+        )
+      );
   }
 };
 
@@ -159,16 +185,22 @@ const withdraw = async (req, res) => {
     const response = ResponseTemplate(
       transaction,
       "Transaction Created",
-      false,
-      201
+      null,
+      "Created"
     );
     return res.status(201).json(response);
   } catch (error) {
     console.error("Error Controller Transaction", error);
-    res
+    return res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", error, 500));
-    return;
+      .json(
+        ResponseTemplate(
+          null,
+          "Something broke!",
+          error.message,
+          "Internal Server Error"
+        )
+      );
   }
 };
 const deposit = async (req, res) => {
@@ -188,16 +220,22 @@ const deposit = async (req, res) => {
     const response = ResponseTemplate(
       transaction,
       "Transaction Created",
-      false,
-      201
+      null,
+      "Created"
     );
     return res.status(201).json(response);
   } catch (error) {
     console.error("Error Controller Transaction", error);
-    res
+    return res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", error, 500));
-    return;
+      .json(
+        ResponseTemplate(
+          null,
+          "Something broke!",
+          error.message,
+          "Internal Server Error"
+        )
+      );
   }
 };
 
@@ -235,7 +273,14 @@ const balanceInquiry = async (req, res) => {
 
   return res
     .status(200)
-    .json(ResponseTemplate({ bank_inquiry: saldo }, "ok", false, 200));
+    .json(
+      ResponseTemplate(
+        { bank_account_number: bank_account_number, bank_inquiry: saldo },
+        "success",
+        null,
+        "ok"
+      )
+    );
 };
 module.exports = {
   deposit,
