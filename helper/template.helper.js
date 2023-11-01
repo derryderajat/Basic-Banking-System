@@ -6,6 +6,7 @@ function ResponseTemplate(data, message, error, status) {
     status,
   };
 }
+// delete pagination on next commit
 function PaginationTemplate(
   data,
   total_records,
