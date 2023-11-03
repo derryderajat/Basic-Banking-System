@@ -208,7 +208,7 @@ const insertOneUser = async (req, res) => {
         },
       },
     });
-    let respons = ResponseTemplate(newUser, "Created", false, 201);
+    let respons = ResponseTemplate(newUser, "Created", null, true);
     res.status(201).json(respons);
   } catch (error) {
     console.log(error);
@@ -216,12 +216,12 @@ const insertOneUser = async (req, res) => {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      let respErr = ResponseTemplate(null, "Bad request", true, 400);
+      let respErr = ResponseTemplate(null, "Bad request", 'Duplicate User', false);
       res.status(400).json(respErr); // Mengatur status ke 400 untuk kesalahan P2002
     } else {
       res
         .status(500)
-        .json(ResponseTemplate(null, "Internal Server Error", error, 500));
+        .json(ResponseTemplate(null, "Internal Server Error", error, false));
     }
   }
 };

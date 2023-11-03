@@ -31,7 +31,11 @@ const fetchAccounts = async (req, res) => {
       take: itemsPerPage,
     });
     if (accounts.length === 0) {
-      res.status(404).json(ResponseTemplate(null, "Not Found", true, 404));
+      res
+        .status(404)
+        .json(
+          ResponseTemplate(null, "Not Found", "Accounts is not found", false)
+        );
       return;
     } else {
       const totalPages = Math.ceil(totalRecords / itemsPerPage);
@@ -46,14 +50,14 @@ const fetchAccounts = async (req, res) => {
         nextPage,
         prevPage
       );
-      res.status(200).json(ResponseTemplate(response, "ok", false, 200));
+      res.status(200).json(ResponseTemplate(response, "ok", null, true));
       return;
     }
   } catch (error) {
     console.log(error);
     res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", true, 500));
+      .json(ResponseTemplate(null, "Internal Server Error", error, false));
     return;
   }
 };
@@ -69,12 +73,7 @@ const insertOneAccount = async (req, res) => {
       },
     });
 
-    const response = ResponseTemplate(
-      newBankAccount,
-      "Created Account Successfully",
-      false,
-      201
-    );
+    const response = ResponseTemplate(newBankAccount, "Created", null, true);
     res.status(201).json(response);
     return;
   } catch (error) {
@@ -85,16 +84,16 @@ const insertOneAccount = async (req, res) => {
     ) {
       const responseError = ResponseTemplate(
         null,
-        "Bad request - Data Already Exists",
-        true,
-        400
+        "Bad Request",
+        "Data Already Exists",
+        false
       );
       res.status(400).json(responseError);
       return;
     } else {
       res
         .status(500)
-        .json(ResponseTemplate(null, "Internal Server Error", error, 500));
+        .json(ResponseTemplate(null, "Internal Server Error", error, false));
       return;
     }
   }
@@ -128,16 +127,18 @@ const fetchAccountsById = async (req, res) => {
       },
     });
     if (account) {
-      res.status(200).json(ResponseTemplate(account, "ok", false, 200));
+      res.status(200).json(ResponseTemplate(account, "ok", null, true));
       return;
     }
-    res.status(404).json(ResponseTemplate(null, "Not Found", true, 404));
+    res
+      .status(404)
+      .json(ResponseTemplate(null, "Not Found", "Account is not found", false));
     return;
   } catch (error) {
     console.log(error.message);
     res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", null, 500));
+      .json(ResponseTemplate(null, "Internal Server Error", error, 500));
     return;
   }
 };
@@ -156,18 +157,13 @@ const withdraw = async (req, res) => {
     const transaction = await prisma.transactions.create({
       data: payload,
     });
-    const response = ResponseTemplate(
-      transaction,
-      "Transaction Created",
-      false,
-      201
-    );
+    const response = ResponseTemplate(transaction, "Created", null, true);
     return res.status(201).json(response);
   } catch (error) {
     console.error("Error Controller Transaction", error);
     res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", error, 500));
+      .json(ResponseTemplate(null, "Internal Server Error", error, false));
     return;
   }
 };
@@ -185,18 +181,13 @@ const deposit = async (req, res) => {
     const transaction = await prisma.transactions.create({
       data: payload,
     });
-    const response = ResponseTemplate(
-      transaction,
-      "Transaction Created",
-      false,
-      201
-    );
+    const response = ResponseTemplate(transaction, "Created", null, true);
     return res.status(201).json(response);
   } catch (error) {
     console.error("Error Controller Transaction", error);
     res
       .status(500)
-      .json(ResponseTemplate(null, "Internal Server Error", error, 500));
+      .json(ResponseTemplate(null, "Internal Server Error", error, false));
     return;
   }
 };
@@ -235,7 +226,7 @@ const balanceInquiry = async (req, res) => {
 
   return res
     .status(200)
-    .json(ResponseTemplate({ bank_inquiry: saldo }, "ok", false, 200));
+    .json(ResponseTemplate({ bank_inquiry: saldo }, "ok", null, true));
 };
 module.exports = {
   deposit,

@@ -4,7 +4,7 @@ const router = require("./routes");
 const { notFound } = require("./middleware/middleware");
 // port
 require("dotenv").config();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // middleware
 app.use(express.json());
@@ -17,6 +17,9 @@ app.get("/", (req, res) => {
 app.use("/api", router);
 
 app.use(notFound);
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+
