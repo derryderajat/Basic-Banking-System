@@ -5,12 +5,15 @@ const {
   insertOneUser,
   updateUserById,
 } = require("../controller/users.controller");
-const { validateUserPost } = require("../middleware/middleware");
+const {
+  validateUserPost,
+  isAuthenticate,
+} = require("../middleware/middleware");
 const router = express.Router();
 
-router.get("/users", fetchUsers);
-router.get("/users/:id", fetchUserById);
-router.post("/users", validateUserPost, insertOneUser);
-router.put("/users/:id", updateUserById);
+router.get("/users", [isAuthenticate], fetchUsers);
+router.get("/users/:id", [isAuthenticate], fetchUserById);
+router.post("/users", [isAuthenticate, validateUserPost], insertOneUser);
+router.put("/users/:id", [isAuthenticate], updateUserById);
 
 module.exports = router;

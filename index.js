@@ -7,7 +7,7 @@ const swaggerDocument = require("./swaggerDocument");
 const swaggerJsdoc = require("swagger-jsdoc");
 // port
 require("dotenv").config();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 const options = {
   definition: {
     openapi: "3.1.0",
@@ -51,6 +51,9 @@ app.use(
   swaggerUI.setup(swaggerDocument, { explorer: true })
 );
 app.use(notFound);
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+

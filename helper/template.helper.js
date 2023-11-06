@@ -1,9 +1,9 @@
-function ResponseTemplate(data, message, error, status) {
+function ResponseTemplate(data, message, error, success) {
   return {
     data,
     message,
     error,
-    status,
+    success,
   };
 }
 // delete pagination on next commit
