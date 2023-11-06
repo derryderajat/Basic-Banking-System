@@ -1,21 +1,40 @@
+# Basic Bank System
 
-## Skill Metric
-- Node.JS
-- Package Management
-- Express.JS
-- ORM with Prisma
+Proyek ini adalah contoh sistem perbankan dasar yang dikembangkan untuk memahami konsep dasar perbankan dan transaksi keuangan.
+
+## Fitur
+
+Proyek ini mencakup beberapa fitur dasar:
+
+- Membuat akun bank.
+- Melakukan setoran dan penarikan dana.
+- Transfer dana antar akun bank.
+- Melihat saldo akun.
+- Riwayat transaksi.
+
+## Teknologi
+
+Proyek ini dibangun menggunakan nodeJs dan menggunakan postgre untuk menyimpan informasi akun dan transaksi.
+
+## Penggunaan
+
+Anda dapat mengikuti langkah-langkah berikut untuk menjalankan proyek ini:
+
+1. Clone repositori ini ke komputer Anda.
+2. Pastikan Anda telah menginstal prasyarat yang diperlukan. dengan perintah **```npm install```**
+3. Buat file **```.env```** dengan format seperti yang dicontohkan pada **```.env.example```**
+3. Jalankan **```npm start```** untuk menjalankan aplikasi.
+4. Aplikasi akan berjalan secara default pada ***```localhost:3000```***
+
+## Kontribusi
+
+Kami sangat terbuka untuk kontribusi! Jika Anda ingin berkontribusi ke proyek ini, silakan buat cabang (branch) baru, lakukan perubahan yang Anda inginkan, dan buat pull request untuk menggabungkannya.
 
 
 
-## Criteria
-- [x] membuat API menggunakan Express JS (40)
 
-- [x] melakukan CRUD kedalam database menggunakan Prisma (40)
-- [x] menggunakan JSON (20)
-
-
-## Flowchart
- ![Tux, the Linux mascot](/bank_sys.png)
+## ERD
+ ![ERD ver.0 basic bank system](/bank_sys.png)
 
  ### Relations
 
@@ -26,24 +45,13 @@
 Users)
 - Setiap Akun dapat memiliki banyak Transaksi (Many-to-Many antara Bank Accounts dan Bank Accounts melalui table penampung Transactions).
 
-### Endpoint
-#### users 
-- POST /api/v1/users: menambahkan user baru
-beserta dengan profilnya.
-- GET /api/v1/users: menampilkan daftar users.
-- GET /api/v1/users/:userId: menampilkan detail
-informasi user (tampilkan juga profilnya).
-#### accounts 
-- POST /api/v1/accounts: menambahkan akun baru
-ke user yang sudah didaftarkan.
-- GET /api/v1/accounts: menampilkan daftar akun.
-- GET /api/v1/accounts: menampilkan detail akun.
-#### transactions 
-- POST /api/v1/transactions: mengirimkan uang
-dari 1 akun ke akun lain (tentukan request body
-nya).
-- GET /api/v1/transactions: menampilkan daftar
-transaksi.
-- GET /api/v1/transactions/:transaction:
-menampilkan detail transaksi (tampilkan juga
-pengirim dan penerimanya).
+### Documentation
+
+Dokumentasi tersedia dalam swagger dan postman:
+- Swagger:
+    Berada pada path: **```/docs```**
+- Postman:
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/18134196-d8fa943f-a0d9-4d61-9d27-bd3a1f62ca7a?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D18134196-d8fa943f-a0d9-4d61-9d27-bd3a1f62ca7a%26entityType%3Dcollection%26workspaceId%3D14184828-f556-4133-bd84-a3cadf58bca4)
+
+Terima kasih sudah menggunakan proyek Basic Bank System ini!
