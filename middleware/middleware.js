@@ -5,7 +5,7 @@ const Joi = require("joi");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET_KEY } = process.env;
-const authenticate = (req, res, next) => {
+const isAuthenticate = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -15,17 +15,32 @@ const authenticate = (req, res, next) => {
         ResponseTemplate(null, "Unauthorized", "you're not authorized", false)
       );
   }
-
-  jwt.verify(authorization, JWT_SECRET_KEY, (err, decoded) => {
+  const token = authorization.slice(7);
+  jwt.verify(token, JWT_SECRET_KEY, (err, decoded) => {
     if (err) {
       return res
         .status(401)
         .json(
-          ResponseTemplate(null, "Unauthorized", "you're not authorized", false)
+          ResponseTemplate(
+            null,
+            "Unauthorized",
+            "Token is invalid or expired",
+            false
+          )
+        );
+    }
+
+    // Check if the token is not expired
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    if (decoded.exp && decoded.exp < currentTimestamp) {
+      return res
+        .status(401)
+        .json(
+          ResponseTemplate(null, "Unauthorized", "Token has expired", false)
         );
     }
     req.user = decoded;
-    console.log(decoded);
+    // console.log(decoded);
     next();
   });
 };
@@ -61,16 +76,24 @@ const validateUserPost = (req, res, next) => {
 
 const isAmountPositive = (req, res, next) => {
   const { amount } = req.body;
-  if (amount <= 0) {
-    res
+  if (!Number(amount)) {
+    return res
+      .status(400)
+      .json(
+        ResponseTemplate(null, "Bad Request", "Amount should be numeric", false)
+      );
+  }
+  if (Number(amount) <= 0) {
+    return res
       .status(400)
       .json(ResponseTemplate(null, "Bad Request", "Invalid Amount", false));
-    return;
   }
   next();
 };
 const validateBankAccount = async (req, res, next) => {
   const bank_account_number = req.params.bank_account_number;
+  const destination_account_id = req.params.destination_account_number;
+
   const is_bank_account_exists = await prisma.bankAccounts.findUnique({
     where: {
       bank_account_number: bank_account_number,
@@ -89,7 +112,27 @@ const validateBankAccount = async (req, res, next) => {
       );
     return;
   }
-
+  // jika keperluan transfer
+  if (destination_account_id) {
+    const is_bank_account_exists = await prisma.bankAccounts.findUnique({
+      where: {
+        bank_account_number: destination_account_id,
+      },
+    });
+    if (!is_bank_account_exists) {
+      res
+        .status(404)
+        .json(
+          ResponseTemplate(
+            null,
+            "Not Found",
+            "Destination Bank Account Number Is Not Found",
+            false
+          )
+        );
+      return;
+    }
+  }
   next(); // Continue to the next middleware
 };
 const isBalanceSufficient = async (req, res, next) => {
@@ -138,5 +181,5 @@ module.exports = {
   isAmountPositive,
   validateBankAccount,
   isBalanceSufficient,
-  authenticate,
+  isAuthenticate,
 };

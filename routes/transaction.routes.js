@@ -3,10 +3,10 @@ const {
   fetchTransactions,
   fetchTransactionById,
 } = require("../controller/transactions.controller");
-const { authenticate } = require("../middleware/middleware");
+const { isAuthenticate } = require("../middleware/middleware");
 const router = express.Router();
 
-router.get("/transactions", [authenticate], fetchTransactions);
-router.get("/transactions/:id", fetchTransactionById);
+router.get("/transactions", [isAuthenticate], fetchTransactions);
+router.get("/transactions/:id", [isAuthenticate], fetchTransactionById);
 
 module.exports = router;

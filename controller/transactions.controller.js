@@ -4,8 +4,26 @@ const {
   PaginationTemplate,
 } = require("../helper/template.helper");
 const prisma = new PrismaClient();
-
+const roles = require("../helper/roles");
 const fetchTransactions = async (req, res) => {
+  const { role } = req.user;
+
+  // check if role is allowed in databases
+  if (!(role in roles)) {
+    return res
+      .status(403)
+      .json(
+        ResponseTemplate(null, "Forbidden", "You are not allow in here", false)
+      );
+  }
+  // Check if role execpt admin it will not allowed to access this endpoint
+  if (role.toLowerCase() !== roles.admin) {
+    return res
+      .status(403)
+      .json(
+        ResponseTemplate(null, "Forbidden", "You are not allow in here", false)
+      );
+  }
   const { page, limit } = req.query;
   const pageNumber = parseInt(page) || 1;
   const itemsPerPage = parseInt(limit) || 5;
@@ -30,16 +48,21 @@ const fetchTransactions = async (req, res) => {
       const nextPage = pageNumber < totalPages ? pageNumber + 1 : null;
       const prevPage = pageNumber > 1 ? pageNumber - 1 : null;
 
-      const response = PaginationTemplate(
-        transaction,
-        totalRecords,
-        pageNumber,
-        totalPages,
-        nextPage,
-        prevPage
+      return res.status(200).json(
+        ResponseTemplate(
+          {
+            transaction,
+            totalRecords,
+            pageNumber,
+            totalPages,
+            nextPage,
+            prevPage,
+          },
+          "ok",
+          null,
+          true
+        )
       );
-      res.status(200).json(ResponseTemplate(response, "ok", null, true));
-      return;
     }
   } catch (error) {
     console.log(error);
@@ -51,6 +74,24 @@ const fetchTransactions = async (req, res) => {
 };
 const fetchTransactionById = async (req, res) => {
   const transactionId = parseInt(req.params.id);
+  const { role } = req.user;
+
+  // check if role is allowed in databases
+  if (!(role in roles)) {
+    return res
+      .status(403)
+      .json(
+        ResponseTemplate(null, "Forbidden", "You are not allow in here", false)
+      );
+  }
+  // Check if role execpt admin it will not allowed to access this endpoint
+  if (role.toLowerCase() !== roles.admin) {
+    return res
+      .status(403)
+      .json(
+        ResponseTemplate(null, "Forbidden", "You are not allow in here", false)
+      );
+  }
   try {
     const user = await prisma.transactions.findUnique({
       where: {
