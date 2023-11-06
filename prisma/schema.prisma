@@ -15,15 +15,19 @@ enum IdentityType {
   KTP
   NPWP
 }
+enum roles {
+  customer
+  admin
+}
 model Users {
   id         Int       @id @default(autoincrement())
   name       String
   email      String    @unique
   password   String
+  role       roles     @default(customer)
   created_at DateTime  @default(now())
   updated_at DateTime  @default(now())
   deleted_at DateTime?
-
   // Relation
   bank_accounts BankAccounts[]
   profile    Profiles?

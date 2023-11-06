@@ -5,8 +5,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const prisma = new PrismaClient();
 const register = async (req, res, next) => {
+  let { name, email, password, role } = req.body;
+  if (!name || !email || !password) {
+    return res
+      .status(400)
+      .json(ResponseTemplate(null, "Bad Request", "Incomplete data", false));
+  }
+  // Check if data is not duplicate
   try {
-    let { name, email, password } = req.body;
     let existUser = await prisma.users.findUnique({
       where: { email },
     });
@@ -18,10 +24,16 @@ const register = async (req, res, next) => {
           ResponseTemplate(null, "Bad Request", "email already used!", false)
         );
     }
-    const saltRounds = 10;
-    const saltKey = process.env.SALT_KEY;
+  } catch (error) {
+    return res
+      .status(500)
+      .json(ResponseTemplate(null, "Internal Server Error", error, false));
+  }
+  const saltRounds = 10;
+  const saltKey = process.env.SALT_KEY;
 
-    // Generate a hash for the plaintext password
+  // Generate a hash for the plaintext password
+  try {
     const hashedPassword = await bcrypt.hash(
       saltKey + password + saltKey,
       saltRounds
@@ -31,12 +43,15 @@ const register = async (req, res, next) => {
         name: name,
         email: email,
         password: hashedPassword,
+        role: role,
       },
     });
 
     return res.status(201).json(ResponseTemplate(null, "Created", null, true));
   } catch (error) {
-    next(error);
+    return res
+      .status(500)
+      .json(ResponseTemplate(null, "Internal Server Error", error, false));
   }
 };
 
@@ -62,6 +77,7 @@ const login = async (req, res, next) => {
     }
     const saltKey = process.env.SALT_KEY;
     // it should only passsword not saltKey + password + saltKey
+
     let isPasswordCorrect = await bcrypt.compare(
       saltKey + password + saltKey,
       user.password
@@ -86,8 +102,14 @@ const login = async (req, res, next) => {
       id: user.id,
       name: user.name,
       email: user.email,
+      role: user.role,
     };
-    let token = jwt.sign(selectedUser, process.env.JWT_SECRET_KEY);
+    // 1 day expired
+    const tokenExpiration = 24 * 60 * 60;
+    let token = jwt.sign(selectedUser, process.env.JWT_SECRET_KEY, {
+      expiresIn: tokenExpiration,
+      algorithm: "HS256",
+    });
     return res
       .status(201)
       .json(ResponseTemplate({ selectedUser, token }, "Created", null, true));
