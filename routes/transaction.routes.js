@@ -6,6 +6,7 @@ const {
 const { isAuthenticate } = require("../middleware/middleware");
 const router = express.Router();
 
+
 router.get("/transactions", [isAuthenticate], fetchTransactions);
 router.get("/transactions/:id", [isAuthenticate], fetchTransactionById);
 

@@ -49,6 +49,7 @@ const notFound = (req, res, next) => {
   return res
     .status(404)
     .json(ResponseTemplate(null, "Not Found", "you are lost?", false));
+
 };
 const validateUserPost = (req, res, next) => {
   const schema = Joi.object({
