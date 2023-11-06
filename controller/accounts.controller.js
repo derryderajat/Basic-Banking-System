@@ -127,10 +127,9 @@ const insertOneAccount = async (req, res) => {
         "Data Already Exists",
         false
       );
-      res.status(400).json(responseError);
-      return;
+      return res.status(400).json(responseError);
     } else {
-      res
+      return res
         .status(500)
         .json(ResponseTemplate(null, "Internal Server Error", error, false));
       return;
@@ -208,7 +207,7 @@ const fetchAccountsById = async (req, res) => {
       .json(ResponseTemplate(null, "Not Found", "Account is not found", false));
   } catch (error) {
     console.log(error.message);
-    res
+    return res
       .status(500)
       .json(ResponseTemplate(null, "Internal Server Error", error, 500));
     return;
@@ -269,7 +268,7 @@ const withdraw = async (req, res) => {
     return res.status(201).json(response);
   } catch (error) {
     console.error("Error Controller Transaction", error);
-    res
+    return res
       .status(500)
       .json(ResponseTemplate(null, "Internal Server Error", error, false));
     return;
@@ -329,7 +328,7 @@ const deposit = async (req, res) => {
     return res.status(201).json(response);
   } catch (error) {
     console.error("Error Controller Transaction", error);
-    res
+    return res
       .status(500)
       .json(ResponseTemplate(null, "Internal Server Error", error, false));
     return;

@@ -100,38 +100,12 @@ const validateBankAccount = async (req, res, next) => {
     },
   });
   if (!is_bank_account_exists) {
-    res
+    return res
       .status(404)
       .json(
-        ResponseTemplate(
-          null,
-          "Not Found",
-          "Bank Account Number Is Not Found",
-          false
-        )
+        ResponseTemplate(null, "Bank Account Number Is Not Found", true, 404)
       );
     return;
-  }
-  // jika keperluan transfer
-  if (destination_account_id) {
-    const is_bank_account_exists = await prisma.bankAccounts.findUnique({
-      where: {
-        bank_account_number: destination_account_id,
-      },
-    });
-    if (!is_bank_account_exists) {
-      res
-        .status(404)
-        .json(
-          ResponseTemplate(
-            null,
-            "Not Found",
-            "Destination Bank Account Number Is Not Found",
-            false
-          )
-        );
-      return;
-    }
   }
   next(); // Continue to the next middleware
 };
@@ -170,7 +144,7 @@ const isBalanceSufficient = async (req, res, next) => {
     return res
       .status(400)
       .json(
-        ResponseTemplate(null, "Bad Request", "Balance is not enough", false)
+        ResponseTemplate(null, "Bad Request", "Balance is not enough", 400)
       );
   }
   next();

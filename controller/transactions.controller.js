@@ -66,7 +66,7 @@ const fetchTransactions = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
+    return res
       .status(500)
       .json(ResponseTemplate(null, "Internal Server Error", error, false));
     return;
@@ -125,7 +125,7 @@ const fetchTransactionById = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res
+    return res
       .status(500)
       .json(ResponseTemplate(null, "Internal Server Error", error, false));
     return;

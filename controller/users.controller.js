@@ -182,7 +182,9 @@ const updateUserById = async (req, res) => {
     if (!existingUser) {
       return res
         .status(404)
-        .json(ResponseTemplate(null, "User not found", true, 404));
+        .json(
+          ResponseTemplate(null, "Sorry data is not found", null, "Not Found")
+        );
     }
 
     // Update user data if there's body in its req
