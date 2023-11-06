@@ -2,6 +2,7 @@ const transactionsPath = {
   "/transactions": {
     get: {
       tags: ["transactions"],
+      security: [{ bearer_token: [] }],
       summary: "Fetch all transactions",
       description: "",
       operationId: "getTransactions",
@@ -12,6 +13,20 @@ const transactionsPath = {
           description: "success",
           schema: {
             $ref: "#/definitions/User",
+          },
+        },
+        403: {
+          description: "Forbidden action",
+          schema: {
+            $ref: "#/definitions/User",
+          },
+          examples: {
+            "application/json": {
+              data: null,
+              message: "Forbidden",
+              error: "You are not allow in here",
+              success: false,
+            },
           },
         },
         404: {

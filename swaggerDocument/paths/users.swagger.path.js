@@ -1,12 +1,21 @@
 const usersPath = {
   "/users": {
     get: {
+      security: [{ bearer_token: [] }],
       tags: ["users"],
       summary: "Fetch all users",
       description: "",
+      parameters: [
+        {
+          name: "page",
+          in: "path",
+          description: "page values that need to be considered for pagination",
+          required: false,
+          type: "integer",
+        },
+      ],
       operationId: "getUser",
       produces: ["application/json", "application/xml"],
-      parameters: [],
       responses: {
         200: {
           description: "success",
@@ -53,10 +62,24 @@ const usersPath = {
                 type: "string",
                 default: null,
               },
-              status: {
+              success: {
                 type: "string",
                 default: "ok",
               },
+            },
+          },
+        },
+        403: {
+          description: "Forbidden action",
+          schema: {
+            $ref: "#/definitions/User",
+          },
+          examples: {
+            "application/json": {
+              data: null,
+              message: "Forbidden",
+              error: "You are not allow in here",
+              success: false,
             },
           },
         },
@@ -89,6 +112,7 @@ const usersPath = {
       tags: ["users"],
       summary: "Get user by id",
       description: "",
+      security: [{ bearer_token: [] }],
       operationId: "getUserById",
       produces: ["application/json", "application/xml"],
       parameters: [
@@ -110,6 +134,20 @@ const usersPath = {
               profile: {
                 $ref: "#/definitions/Profile",
               },
+            },
+          },
+        },
+        403: {
+          description: "Forbidden action",
+          schema: {
+            $ref: "#/definitions/User",
+          },
+          examples: {
+            "application/json": {
+              data: null,
+              message: "Forbidden",
+              error: "You are not allow in here",
+              success: false,
             },
           },
         },

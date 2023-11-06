@@ -12,19 +12,12 @@ const swaggerDocument = {
   schemes: ["https", "http"], // ["https", "http"]
   paths: swaggerPaths,
   securityDefinitions: {
-    petstore_auth: {
-      type: "oauth2",
-      authorizationUrl: "http://petstore.swagger.io/oauth/dialog",
-      flow: "implicit",
-      scopes: {
-        "write:pets": "modify pets in your account",
-        "read:pets": "read your pets",
-      },
-    },
-    api_key: {
+    bearer_token: {
       type: "apiKey",
-      name: "api_key",
-      in: "header",
+      name: "Authorization",
+      in: "Header",
+      description:
+        "Enter the token with the `Bearer: ` prefix, e.g. 'Bearer abcde12345'.",
     },
   },
   definitions: swaggerDefintions,

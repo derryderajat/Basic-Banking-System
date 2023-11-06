@@ -3,6 +3,7 @@ const accountsPath = {
     get: {
       tags: ["accounts"],
       summary: "Fetch all accounts",
+      security: [{ bearer_token: [] }],
       description: "",
       operationId: "getAccounts",
       produces: ["application/json", "application/xml"],
@@ -14,6 +15,20 @@ const accountsPath = {
             type: "object",
             properties: {
               id: { type: "integer", default: 2 },
+            },
+          },
+        },
+        403: {
+          description: "Forbidden action",
+          schema: {
+            $ref: "#/definitions/User",
+          },
+          examples: {
+            "application/json": {
+              data: null,
+              message: "Forbidden",
+              error: "You are not allow in here",
+              success: false,
             },
           },
         },
